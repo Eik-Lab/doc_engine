@@ -35,6 +35,7 @@ def main():
 
     elif st.session_state.page == "Generate Text":
         generate_text_section()
+
     # Sidebar
     # Home button
     if st.session_state.page != "Home":
@@ -61,27 +62,30 @@ def main():
         )
 
     # Export to Word button
-    if st.session_state.page == "Generate Text":
-        st.sidebar.subheader("Export to Word")
-        st.sidebar.button("Export to Word")
-        if st.session_state.generated_texts:
-            # Create a new Word document
-            document = Document()
-
-            # Add the generated texts to the Word document
-            for text in st.session_state.generated_texts:
-                document.add_paragraph(text)
-
-            # Save the Word document
-            document.save("generated_document.docx")
-            st.success("Document exported successfully.")
-
-        else:
-            st.warning("Please generate text first.")
+    export_to_word()
 
     # About
     sidebar()
 
+def export_to_word():
+    if st.session_state.page != "Generate Text":
+        return
+    st.sidebar.subheader("Export to Word")
+    st.sidebar.button("Export to Word")
+    if st.session_state.generated_texts:
+        # Create a new Word document
+        document = Document()
+
+        # Add the generated texts to the Word document
+        for text in st.session_state.generated_texts:
+            document.add_paragraph(text)
+
+        # Save the Word document
+        document.save("generated_document.docx")
+        st.success("Document exported successfully.")
+
+    elif st.sidebar.button("Export to Word", key="export_to_word"):
+        st.warning("Please generate text first.")
 
 def generate_text_section():
     if "document_type" not in st.session_state:

@@ -1,25 +1,37 @@
 import openai
+from templates import system_roles
+
 
 # Set OpenAI API key
 openai.api_key = "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"
 
-# Define the function to generate text using OpenAI API
-def generate_text(prompt, temperature=0.7, max_words=100):
-    start_sequence = "From the info above produce a professional-grade text with an emphasis on providing valuable insights and actionable information. Maintain a professional tone throughout the text, adhering to established conventions for clarity and accuracy."
-    prompt = f"{start_sequence}\n{prompt}"
 
+# Define the function to generate text using OpenAI API
+def generate_text(
+    system_role,
+    user_input: str,
+    temperature=0.7,
+    max_words=150,
+):
     # Set the maximum number of tokens
+
     tokens_per_word = 15
     max_tokens = max_words * tokens_per_word
 
-    # Generate text using the Davinci engine
-    response = openai.Completion.create(
-        engine="text-davinci-003",
-        prompt=prompt,
-        temperature=temperature,
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",  # use the gpt-3.5-turbo
         max_tokens=max_tokens,
-        top_p=1,
-        frequency_penalty=0,
-        presence_penalty=0
+        messages=[
+            {
+                "role": "system",
+                "content": system_role,
+            },  # add the start sequence as the first message
+            {
+                "role": "user",
+                "content": user_input,
+            },  # add the prompt as the second message
+        ],
+        temperature=temperature,  # set the temperature
     )
-    return response.choices[0].text.strip()
+
+    return response["choices"][0]["message"]["content"]  # return the generated text

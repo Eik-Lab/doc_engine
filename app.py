@@ -6,6 +6,40 @@ st.session_state.chat_history = []
 st.session_state.section_history = {}
 
 
+def append_section_history(section, content):
+    """Append to the global chat history"""
+    st.session_state.section_history[section] = st.session_state.section_history[
+        section
+    ].append(content)
+
+
+def populate_section_history(sections):
+    """Popualte the section history with the keys recieved, and default to empty list"""
+    for section in sections:
+        if section not in st.session_state.section_history:
+            st.session_state.section_history[section] = []
+
+
+def get_section_history(section):
+    """Get the section history"""
+    section_history = st.session_state.section_history[section]
+    # Combine the chat history into a single string
+    section_history_string = ""
+    for item in section_history:
+        section_history_string += item["content"] + " "
+    return section_history_string
+
+
+def append_history(role, content):
+    """Append to the global chat history"""
+    st.session_state.chat_history.append({"role": role, "content": content})
+
+
+def clear_history():
+    """Clear the global chat history"""
+    st.session_state.chat_history = []
+
+
 # Main App
 def main():
     # Set the CSS style for the app

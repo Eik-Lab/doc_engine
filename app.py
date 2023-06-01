@@ -131,13 +131,13 @@ def generate_text_section():
 
     document_type = st.session_state.document_type
     # Get the role template for the selected document type
-    system_role = system_roles[document_type]
-    print(system_role)
+    document_type_system_role = system_roles[document_type]
 
     st.markdown(f"## Template for {document_type}:")
-    subtitle_list = list(system_role.keys())
+    subtitle_list = list(document_type_system_role.keys())
     selected_subtitle = st.selectbox("Select a subtitle:", subtitle_list)
-    prompt = system_role[selected_subtitle]
+    populate_section_history(subtitle_list)
+    system_role = document_type_system_role[selected_subtitle]
 
     # Display the template
     key = f"prompt_{selected_subtitle.replace(' ', '_')}"
@@ -145,39 +145,42 @@ def generate_text_section():
     user_input = st.text_area(
         label="", value="", placeholder=placeholder, key=key, height=100
     )
-    print(user_input)
 
     generate_key = f"generate_{selected_subtitle}"
     if st.button("Generate", key=generate_key):
         if user_input:
             # Combine the template prompt with the user's prompt
             prompt = (
-                f"You will write {prompt} for a {document_type} with the following in mind:"
+                f"You will write {selected_subtitle} for a {document_type} with the following in mind:"
                 + "\n"
                 + user_input
             )
-            generated_text = generate_text(prompt)
-            st.session_state.generated_texts.append(generated_text)
-            st.session_state.generated_texts = st.session_state.generated_texts[
-                -10:
-            ]  # Limit to last 10 generated texts
+            generated_text = generate_text(system_role, prompt)
+            print(generated_text)
+            print(prompt)
+            append_history("user", prompt)
+            append_history("system", generated_text)
+            append_section_history(selected_subtitle, generated_text)
         else:
             st.warning("Please enter a prompt.")
 
     # Display the generated texts
-    if st.session_state.generated_texts:
+    if (
+        st.session_state.chat_history
+        and st.session_state.section_history[selected_subtitle]
+    ):
         st.markdown("### Generated Texts:")
-        for text in st.session_state.generated_texts:
-            st.write(text)
+        st.write(get_section_history(selected_subtitle))
 
     # Delete button
     if st.button("Delete All"):
+        print(st.session_state.chat_history)
         if st.session_state.generated_texts:
             delete_confirmation = st.warning(
                 "Are you sure you want to delete all the generated texts?"
             )
             if delete_confirmation.button("Confirm"):
-                st.session_state.generated_texts = []
+                clear_history()
 
 
 def options_page():

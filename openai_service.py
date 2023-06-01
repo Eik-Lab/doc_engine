@@ -1,11 +1,6 @@
 import openai
 from templates import system_roles
 
-
-# Set OpenAI API key
-openai.api_key = "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"
-
-
 # Define the function to generate text using OpenAI API
 def generate_text(
     system_role,

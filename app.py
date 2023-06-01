@@ -2,15 +2,11 @@ import streamlit as st
 from openai_service import generate_text
 from templates import system_roles
 from docx import Document
-st.session_state.chat_history = []
-st.session_state.section_history = {}
 
 
 def append_section_history(section, content):
     """Append to the global chat history"""
-    st.session_state.section_history[section] = st.session_state.section_history[
-        section
-    ].append(content)
+    st.session_state.section_history[section].append(content)
 
 
 def populate_section_history(sections):
@@ -26,7 +22,7 @@ def get_section_history(section):
     # Combine the chat history into a single string
     section_history_string = ""
     for item in section_history:
-        section_history_string += item["content"] + " "
+        section_history_string += item + "\n\n"
     return section_history_string
 
 
@@ -43,6 +39,13 @@ def clear_history():
 # Main App
 def main():
     # Set the CSS style for the app
+    if "selected_subtitle" not in st.session_state:
+        st.session_state.selected_subtitle = ""
+    if "chat_history" not in st.session_state:
+        st.session_state.chat_history = []
+    if "section_history" not in st.session_state:
+        st.session_state.section_history = {}
+
     st.markdown(f'<style>{open("styles.css").read()}</style>', unsafe_allow_html=True)
 
     # Initialize the session state
@@ -80,7 +83,7 @@ def main():
     # Mode Selection
     if st.session_state.page == "Generate Text":
         st.sidebar.subheader("Mode Selection")
-        temperature_modes = {"Creative": 1.5, "Neutral": 1.0, "Precise": 0.3}
+        temperature_modes = {"Creative": 1.5, "Neutral": 1.0, "Precise": 0.0}
         selected_mode = st.sidebar.selectbox(
             "Select a mode for the prompt:", list(temperature_modes.keys())
         )
@@ -96,47 +99,54 @@ def main():
             200,
             50,
         )
+    
+    # Insert API Key
+    if st.session_state.page == "Home":
+        st.sidebar.subheader(" API Key")
+        api_key = st.sidebar.text_input(
+            "Enter your Openai API Key here:", type="password"
+        )
 
-    # Export to Word button
-    export_to_word()
+    # Export to Word
+    if st.session_state.page == "Generate Text":
+        st.sidebar.subheader("Export to Word")
+        if st.sidebar.button("Export to Word", key="export_to_word"):
+            if not st.session_state.section_history[st.session_state.selected_subtitle]:
+                st.warning("Please generate a text section first.")
+                st.stop()
+            # Create a new Word document
+            document = Document()
+            # Add the generated texts to the Word document
+            for text in st.session_state.section_history[
+                st.session_state.selected_subtitle
+            ]:
+                document.add_paragraph(text)
+            # Save the Word document
+            document.save("generated_document.docx")
+            with open("generated_document.docx", "rb") as f:
+                st.sidebar.download_button("Download word document ", f, mime="docx")
 
     # About
     sidebar()
-
-def export_to_word():
-    if st.session_state.page != "Generate Text":
-        return
-    st.sidebar.subheader("Export to Word")
-    st.sidebar.button("Export to Word")
-    if st.session_state.generated_texts:
-        # Create a new Word document
-        document = Document()
-
-        # Add the generated texts to the Word document
-        for text in st.session_state.generated_texts:
-            document.add_paragraph(text)
-
-        # Save the Word document
-        document.save("generated_document.docx")
-        st.success("Document exported successfully.")
-
-    elif st.sidebar.button("Export to Word", key="export_to_word"):
-        st.warning("Please generate text first.")
 
 def generate_text_section():
     if "document_type" not in st.session_state:
         # If document type is not selected, show a warning message
         st.warning("Please select a document type on the 'Options' page.")
         st.stop()
-
+    generated_text = ""
     document_type = st.session_state.document_type
     # Get the role template for the selected document type
     document_type_system_role = system_roles[document_type]
 
     st.markdown(f"## Template for {document_type}:")
     subtitle_list = list(document_type_system_role.keys())
+    if not st.session_state.section_history:
+        print("Populating section history")
+        populate_section_history(subtitle_list)
     selected_subtitle = st.selectbox("Select a subtitle:", subtitle_list)
-    populate_section_history(subtitle_list)
+    st.session_state.selected_subtitle = selected_subtitle
+
     system_role = document_type_system_role[selected_subtitle]
 
     # Display the template
@@ -155,12 +165,11 @@ def generate_text_section():
                 + "\n"
                 + user_input
             )
-            generated_text = generate_text(system_role, prompt)
-            print(generated_text)
-            print(prompt)
+            generated_text = generate_text(system_role, prompt,)
             append_history("user", prompt)
             append_history("system", generated_text)
             append_section_history(selected_subtitle, generated_text)
+            print(st.session_state.section_history)
         else:
             st.warning("Please enter a prompt.")
 
@@ -243,6 +252,8 @@ def sidebar():
     st.sidebar.write(
         "The maximum words for output selection allows you to choose the approximate maximum number of words for the generated text. The actual number of words may be slightly higher or lower than the selected number since the model actually generates tokens instead of words."
     )
+    st.sidebar.write("Where will the exported Word document be saved?")
+    st.sidebar.write("The exported Word document will be saved in your Downloads folder.")
 
 
 def home_button():

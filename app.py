@@ -2,6 +2,8 @@ import streamlit as st
 from openai_service import generate_text
 from templates import system_roles
 from docx import Document
+st.session_state.chat_history = []
+st.session_state.section_history = {}
 
 
 # Main App

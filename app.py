@@ -99,13 +99,16 @@ def main():
             200,
             50,
         )
-    
+
     # Insert API Key
     if st.session_state.page == "Home":
         st.sidebar.subheader(" API Key")
         api_key = st.sidebar.text_input(
             "Enter your Openai API Key here:", type="password"
         )
+        # Save api key to session storage
+        st.session_state.api_key = api_key
+        
 
     # Export to Word
     if st.session_state.page == "Generate Text":
@@ -128,6 +131,7 @@ def main():
 
     # About
     sidebar()
+
 
 def generate_text_section():
     if "document_type" not in st.session_state:
@@ -165,7 +169,10 @@ def generate_text_section():
                 + "\n"
                 + user_input
             )
-            generated_text = generate_text(system_role, prompt,)
+            generated_text = generate_text(
+                system_role,
+                prompt,
+            )
             append_history("user", prompt)
             append_history("system", generated_text)
             append_section_history(selected_subtitle, generated_text)
@@ -253,7 +260,9 @@ def sidebar():
         "The maximum words for output selection allows you to choose the approximate maximum number of words for the generated text. The actual number of words may be slightly higher or lower than the selected number since the model actually generates tokens instead of words."
     )
     st.sidebar.write("Where will the exported Word document be saved?")
-    st.sidebar.write("The exported Word document will be saved in your Downloads folder.")
+    st.sidebar.write(
+        "The exported Word document will be saved in your Downloads folder."
+    )
 
 
 def home_button():

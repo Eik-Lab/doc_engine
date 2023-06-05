@@ -1,5 +1,7 @@
 import openai
 from templates import system_roles
+import streamlit as st
+
 
 # Define the function to generate text using OpenAI API
 def generate_text(
@@ -9,7 +11,7 @@ def generate_text(
     max_words=150,
 ):
     # Set the maximum number of tokens
-
+    openai.api_key = st.session_state.api_key
     tokens_per_word = 15
     max_tokens = max_words * tokens_per_word
 

@@ -2,7 +2,14 @@
 
 Doc Engine is an AI-powered document generation app developed using Streamlit and OpenAI's GPT-3 model. It aims to simplify the document generation process and save time by automating the initial drafting phase.
 
-## Usage
+## How to use
+
+1. Get or make a openai api key at [openai](https://platform.openai.com/account/api-keys).
+
+2. Access the app at https://tin200-doc-engine.streamlit.app/
+
+
+## Set up for developers
 
 1. Clone the repository:
 
@@ -15,18 +22,10 @@ Doc Engine is an AI-powered document generation app developed using Streamlit an
    ```shell
    cd doc-engine
    ```
-   
-3. Find your own api key here: `https://openai.com/blog/openai-api`.
 
-4. Run the Streamlit application:
+3. Access the application in your browser at `http://localhost:8501`.
 
-   ```shell
-   streamlit run app.py
-   ```
-
-5. Access the application in your browser at `http://localhost:8501`.
-
-6. Follow the on-screen instructions to generate documents using predefined templates or free-form prompts.
+4. Follow the on-screen instructions to generate documents using predefined templates or free-form prompts.
 
 ## Contributing
 

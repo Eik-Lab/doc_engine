@@ -8,6 +8,10 @@ Doc Engine is an AI-powered document generation app developed using Streamlit an
 
 2. Access the app at https://tin200-doc-engine.streamlit.app/
 
+3. Add the openai API key you created in step one in the input marked in the following image. Remember to press enter. PS: You need to enter the token after every refresh.
+![Screenshot 2023-06-05 at 16 38 37](https://github.com/Eik-Lab/doc_engine/assets/100713791/8b2f19ba-7db6-46f5-a21c-19cdbec7b35b)
+
+
 
 ## Set up for developers
 
